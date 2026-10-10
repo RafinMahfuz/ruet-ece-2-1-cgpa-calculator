@@ -1,0 +1,723 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RUET ECE 2-1 (2nd Year Odd) GPA & CGPA Calculator</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #4f46e5;
+      --primary-light: #6366f1;
+      --primary-dark: #3730a3;
+      --bg-gradient: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #0f172a 100%);
+      --card-bg: rgba(30, 41, 59, 0.75);
+      --card-border: rgba(255, 255, 255, 0.1);
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --accent-emerald: #10b981;
+      --accent-rose: #f43f5e;
+      --accent-amber: #f59e0b;
+      --accent-cyan: #06b6d4;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Outfit', sans-serif;
+    }
+
+    body {
+      background: var(--bg-gradient);
+      color: var(--text-main);
+      min-height: 100vh;
+      padding: 24px 16px 60px;
+      line-height: 1.5;
+    }
+
+    .container {
+      max-width: 1050px;
+      margin: 0 auto;
+    }
+
+    /* Header */
+    .header {
+      text-align: center;
+      margin-bottom: 28px;
+    }
+    .badge {
+      display: inline-block;
+      padding: 6px 16px;
+      background: rgba(99, 102, 241, 0.15);
+      border: 1px solid rgba(99, 102, 241, 0.35);
+      border-radius: 9999px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #a5b4fc;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+    }
+    .header h1 {
+      font-size: 2.2rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      background: linear-gradient(to right, #ffffff, #c7d2fe, #a5b4fc);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 8px;
+    }
+    .header p {
+      color: var(--text-muted);
+      font-size: 1rem;
+    }
+
+    /* Top Grid - Cumulative Inputs & Stats */
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .glass-card {
+      background: var(--card-bg);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      padding: 20px;
+      box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+      transition: transform 0.2s ease, border-color 0.2s ease;
+    }
+    .glass-card:hover {
+      border-color: rgba(99, 102, 241, 0.3);
+    }
+
+    .card-title {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: #c7d2fe;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .form-group {
+      margin-bottom: 12px;
+    }
+    .form-group:last-child {
+      margin-bottom: 0;
+    }
+    .form-group label {
+      display: block;
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      margin-bottom: 5px;
+    }
+    .form-group input {
+      width: 100%;
+      background: rgba(15, 23, 42, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: white;
+      padding: 9px 12px;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      font-family: 'JetBrains Mono', monospace;
+      outline: none;
+      transition: border-color 0.2s ease;
+    }
+    .form-group input:focus {
+      border-color: var(--primary-light);
+      box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.25);
+    }
+
+    /* Scoreboard cards */
+    .stat-box {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      padding: 16px;
+      position: relative;
+      overflow: hidden;
+    }
+    .stat-label {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 4px;
+    }
+    .stat-value {
+      font-size: 2.5rem;
+      font-weight: 800;
+      font-family: 'JetBrains Mono', monospace;
+      line-height: 1.1;
+    }
+    .stat-value.primary { color: #818cf8; }
+    .stat-value.success { color: var(--accent-emerald); }
+    .stat-value.cyan { color: var(--accent-cyan); }
+    .stat-sub {
+      font-size: 0.85rem;
+      margin-top: 6px;
+      color: #cbd5e1;
+      font-weight: 500;
+    }
+    .status-badge {
+      display: inline-block;
+      margin-top: 6px;
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+    .badge-honors { background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.4); }
+    .badge-first { background: rgba(59, 130, 246, 0.2); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.4); }
+    .badge-second { background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.4); }
+    .badge-danger { background: rgba(244, 63, 94, 0.2); color: #fb7185; border: 1px solid rgba(244, 63, 94, 0.4); }
+
+    /* Action Toolbar */
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+    .toolbar-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: white;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .pill-info {
+      font-size: 0.8rem;
+      background: rgba(255, 255, 255, 0.08);
+      padding: 4px 10px;
+      border-radius: 999px;
+      color: #94a3b8;
+    }
+    .btn-group {
+      display: flex;
+      gap: 8px;
+    }
+    .btn {
+      padding: 8px 14px;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .btn-primary {
+      background: var(--primary);
+      color: white;
+    }
+    .btn-primary:hover {
+      background: var(--primary-light);
+    }
+    .btn-outline {
+      background: rgba(255, 255, 255, 0.06);
+      color: #cbd5e1;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+    }
+    .btn-outline:hover {
+      background: rgba(255, 255, 255, 0.12);
+      color: white;
+    }
+
+    /* Course Table */
+    .table-container {
+      background: var(--card-bg);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      overflow-x: auto;
+      margin-bottom: 24px;
+      box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+    }
+    th {
+      background: rgba(15, 23, 42, 0.8);
+      padding: 14px 16px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #94a3b8;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    td {
+      padding: 12px 16px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      font-size: 0.92rem;
+      vertical-align: middle;
+    }
+    tr:last-child td {
+      border-bottom: none;
+    }
+    tr:hover td {
+      background: rgba(255, 255, 255, 0.02);
+    }
+    .course-code {
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 600;
+      color: #a5b4fc;
+      white-space: nowrap;
+    }
+    .course-type-pill {
+      display: inline-block;
+      font-size: 0.7rem;
+      font-weight: 600;
+      padding: 2px 7px;
+      border-radius: 4px;
+      text-transform: uppercase;
+      margin-left: 6px;
+    }
+    .type-theory { background: rgba(59, 130, 246, 0.15); color: #93c5fd; }
+    .type-sessional { background: rgba(168, 85, 247, 0.15); color: #d8b4fe; }
+
+    .credit-badge {
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 600;
+      color: #e2e8f0;
+      background: rgba(255, 255, 255, 0.05);
+      padding: 4px 8px;
+      border-radius: 6px;
+      display: inline-block;
+    }
+
+    select.grade-select {
+      background: rgba(15, 23, 42, 0.9);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: #f8fafc;
+      padding: 7px 10px;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      font-family: 'JetBrains Mono', monospace;
+      cursor: pointer;
+      outline: none;
+      transition: all 0.2s ease;
+      width: 100%;
+      min-width: 110px;
+    }
+    select.grade-select:focus {
+      border-color: var(--primary-light);
+      box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.3);
+    }
+    .gp-display {
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 700;
+      color: #94a3b8;
+    }
+    .gp-display.has-grade {
+      color: #38bdf8;
+    }
+    .gp-display.is-fail {
+      color: var(--accent-rose);
+    }
+
+    /* Modal / Ordinance Reference Section */
+    .ordinance-card {
+      background: rgba(30, 41, 59, 0.5);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 16px;
+      padding: 20px;
+      margin-top: 24px;
+    }
+    .ordinance-title {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: #e2e8f0;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .rules-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 16px;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+    .rule-item {
+      background: rgba(15, 23, 42, 0.4);
+      padding: 12px;
+      border-radius: 8px;
+      border-left: 3px solid var(--primary-light);
+    }
+    .rule-item strong {
+      color: #f1f5f9;
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    /* Footer */
+    footer {
+      text-align: center;
+      margin-top: 32px;
+      font-size: 0.85rem;
+      color: #64748b;
+    }
+    footer a {
+      color: #818cf8;
+      text-decoration: none;
+    }
+    footer a:hover {
+      text-decoration: underline;
+    }
+
+    @media (max-width: 640px) {
+      .header h1 { font-size: 1.6rem; }
+      .stat-value { font-size: 2rem; }
+      td, th { padding: 10px 8px; }
+      .btn { padding: 6px 10px; font-size: 0.78rem; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <!-- Header -->
+  <header class="header">
+    <div class="badge">RUET • ECE Department • 2020-21 Session</div>
+    <h1>2-1 CGPA & GPA Calculator</h1>
+    <p>Rajshahi University of Engineering & Technology — 2nd Year Odd Semester</p>
+  </header>
+
+  <!-- Top Dashboard: Previous Stats & Live Semester Results -->
+  <div class="dashboard-grid">
+    <!-- Cumulative History Form -->
+    <div class="glass-card">
+      <div class="card-title">
+        <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+        Previous Academic Standing (1st Year)
+      </div>
+      <div class="form-group">
+        <label for="prevCredits">Total Credits Completed Before 2-1:</label>
+        <input type="number" id="prevCredits" step="0.25" min="0" max="100" placeholder="e.g. 39.00 (1-1 + 1-2 standard)">
+      </div>
+      <div class="form-group">
+        <label for="prevCgpa">Cumulative CGPA Before 2-1:</label>
+        <input type="number" id="prevCgpa" step="0.01" min="0" max="4.00" placeholder="e.g. 3.65">
+      </div>
+      <p style="font-size: 0.75rem; color: #64748b; margin-top: 6px;">
+        *Standard 1st Year total credit is 39.00 (1-1: 20.25 + 1-2: 18.75). Leave blank if calculating 2-1 Semester GPA only.
+      </p>
+    </div>
+
+    <!-- 2-1 SGPA Live Card -->
+    <div class="glass-card stat-box">
+      <div class="stat-label">2-1 Semester GPA (SGPA)</div>
+      <div class="stat-value primary" id="sgpaDisplay">0.00</div>
+      <div class="stat-sub" id="sgpaDetail">0.00 / 19.50 Credits Earned</div>
+      <div id="sgpaClassBadge" class="status-badge" style="display:none;">-</div>
+    </div>
+
+    <!-- Cumulative CGPA Live Card -->
+    <div class="glass-card stat-box">
+      <div class="stat-label">Updated Cumulative CGPA</div>
+      <div class="stat-value success" id="cgpaDisplay">0.00</div>
+      <div class="stat-sub" id="cgpaDetail">Cumulative Credits: 0.00</div>
+      <div id="cgpaClassBadge" class="status-badge" style="display:none;">-</div>
+    </div>
+  </div>
+
+  <!-- Table Toolbar -->
+  <div class="toolbar">
+    <div class="toolbar-title">
+      <span>2nd Year Odd Semester Courses</span>
+      <span class="pill-info">10 Courses • Total 19.50 Credits</span>
+    </div>
+    <div class="btn-group">
+      <button class="btn btn-primary" onclick="setAllGrades('A+')">All A+</button>
+      <button class="btn btn-outline" onclick="setAllGrades('A')">All A</button>
+      <button class="btn btn-outline" onclick="resetGrades()">Reset</button>
+    </div>
+  </div>
+
+  <!-- Courses Table -->
+  <div class="table-container">
+    <table>
+      <thead>
+        <tr>
+          <th style="width: 50px;">Sl.</th>
+          <th>Course Code</th>
+          <th>Course Title</th>
+          <th style="text-align: center;">Type</th>
+          <th style="text-align: center;">Credits</th>
+          <th>Grade</th>
+          <th style="text-align: right;">Grade Point</th>
+        </tr>
+      </thead>
+      <tbody id="courseTableBody">
+        <!-- Injected via JavaScript -->
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Ordinance Rules Summary (from RUET Syllabus PDF) -->
+  <div class="ordinance-card">
+    <div class="ordinance-title">
+      <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+      RUET Academic Ordinance Reference & Grading Scale
+    </div>
+    <div class="rules-grid">
+      <div class="rule-item">
+        <strong>Grading Scale (Article 13)</strong>
+        80%+ = A+ (4.00)<br>
+        75%-79% = A (3.75)<br>
+        70%-74% = A- (3.50)<br>
+        65%-69% = B+ (3.25)<br>
+        60%-64% = B (3.00)
+      </div>
+      <div class="rule-item">
+        <strong>Lower Scale (Article 13)</strong>
+        55%-59% = B- (2.75)<br>
+        50%-54% = C+ (2.50)<br>
+        45%-49% = C (2.25)<br>
+        40%-44% = D (2.00)<br>
+        &lt; 40% = F (0.00, Backlog)
+      </div>
+      <div class="rule-item">
+        <strong>GPA Calculation (Article 13.1)</strong>
+        GPA = (Σ CᵢGᵢ) / (Σ Cᵢ).<br>
+        <em>Note:</em> 'F' grades earn 0 credits. Both GPA and CGPA are rounded to 2 decimal places.
+      </div>
+      <div class="rule-item">
+        <strong>Honors & Standing (Article 18)</strong>
+        • CGPA ≥ 3.75: First Class with Honors<br>
+        • 3.00 ≤ CGPA &lt; 3.75: First Class<br>
+        • 2.20 ≤ CGPA &lt; 3.00: Second Class<br>
+        • Min requirement for degree: CGPA 2.20
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    Crafted for RUET Department of Electrical & Computer Engineering (ECE) • Session 2020-2021
+  </footer>
+</div>
+
+<script>
+  // Course Data matching the screenshot of 2nd Year Odd Semester exactly
+  const courses = [
+    { sl: 1, code: 'ECE 2103', title: 'Data Structure & Algorithms', type: 'Theory', credit: 3.00 },
+    { sl: 2, code: 'ECE 2104', title: 'Data Structure & Algorithms Sessional', type: 'Sessional', credit: 1.50 },
+    { sl: 3, code: 'ECE 2105', title: 'Analog Electronic Circuits-II', type: 'Theory', credit: 3.00 },
+    { sl: 4, code: 'ECE 2106', title: 'Analog Electronic Circuits-II Sessional', type: 'Sessional', credit: 0.75 },
+    { sl: 5, code: 'ECE 2111', title: 'Digital Techniques', type: 'Theory', credit: 3.00 },
+    { sl: 6, code: 'ECE 2112', title: 'Digital Techniques Sessional', type: 'Sessional', credit: 0.75 },
+    { sl: 7, code: 'Math 2117', title: 'Vector Analysis & Linear Algebra', type: 'Theory', credit: 3.00 },
+    { sl: 8, code: 'Chem 2117', title: 'Inorganic and Physical Chemistry', type: 'Theory', credit: 3.00 },
+    { sl: 9, code: 'Chem 2118', title: 'Inorganic and Physical Chemistry Sessional', type: 'Sessional', credit: 0.75 },
+    { sl: 10, code: 'ECE 2100', title: 'Software Development Project- I', type: 'Sessional', credit: 0.75 }
+  ];
+
+  // Grading scheme per Article 13
+  const gradeOptions = [
+    { label: '-- Select Grade --', value: '', gp: null },
+    { label: 'A+ (80% or above) - 4.00', value: 'A+', gp: 4.00 },
+    { label: 'A (75% to <80%) - 3.75', value: 'A', gp: 3.75 },
+    { label: 'A- (70% to <75%) - 3.50', value: 'A-', gp: 3.50 },
+    { label: 'B+ (65% to <70%) - 3.25', value: 'B+', gp: 3.25 },
+    { label: 'B (60% to <65%) - 3.00', value: 'B', gp: 3.00 },
+    { label: 'B- (55% to <60%) - 2.75', value: 'B-', gp: 2.75 },
+    { label: 'C+ (50% to <55%) - 2.50', value: 'C+', gp: 2.50 },
+    { label: 'C (45% to <50%) - 2.25', value: 'C', gp: 2.25 },
+    { label: 'D (40% to <45%) - 2.00', value: 'D', gp: 2.00 },
+    { label: 'F (Less than 40%) - 0.00', value: 'F', gp: 0.00 }
+  ];
+
+  // Render Table
+  function renderTable() {
+    const tbody = document.getElementById('courseTableBody');
+    tbody.innerHTML = '';
+
+    courses.forEach((c, idx) => {
+      const tr = document.createElement('tr');
+
+      const optionsHtml = gradeOptions.map(g => 
+        `<option value="${g.value}">${g.label}</option>`
+      ).join('');
+
+      tr.innerHTML = `
+        <td style="color: #64748b; font-weight: 600;">${c.sl}</td>
+        <td>
+          <span class="course-code">${c.code}</span>
+        </td>
+        <td>
+          <strong>${c.title}</strong>
+        </td>
+        <td style="text-align: center;">
+          <span class="course-type-pill ${c.type === 'Theory' ? 'type-theory' : 'type-sessional'}">${c.type}</span>
+        </td>
+        <td style="text-align: center;">
+          <span class="credit-badge">${c.credit.toFixed(2)}</span>
+        </td>
+        <td>
+          <select class="grade-select" id="grade_${idx}" onchange="calculate()">
+            ${optionsHtml}
+          </select>
+        </td>
+        <td style="text-align: right;">
+          <span class="gp-display" id="gp_${idx}">-</span>
+        </td>
+      `;
+      tbody.appendChild(tr);
+    });
+  }
+
+  // Calculate SGPA and CGPA
+  function calculate() {
+    let totalRegisteredCredits = 0;
+    let earnedCredits = 0;
+    let totalGradePoints = 0;
+    let hasAnySelection = false;
+
+    courses.forEach((c, idx) => {
+      const select = document.getElementById(`grade_${idx}`);
+      const gpDisplay = document.getElementById(`gp_${idx}`);
+      const selectedGrade = select.value;
+      
+      const option = gradeOptions.find(o => o.value === selectedGrade);
+
+      if (option && option.gp !== null) {
+        hasAnySelection = true;
+        const gp = option.gp;
+        gpDisplay.textContent = gp.toFixed(2);
+        gpDisplay.className = 'gp-display ' + (gp === 0 ? 'is-fail' : 'has-grade');
+
+        totalRegisteredCredits += c.credit;
+        // In RUET course system:
+        // 'F' grades do not earn credit.
+        if (gp > 0) {
+          earnedCredits += c.credit;
+          totalGradePoints += c.credit * gp;
+        }
+      } else {
+        gpDisplay.textContent = '-';
+        gpDisplay.className = 'gp-display';
+      }
+    });
+
+    // Calculate SGPA per RUET Article 13.1:
+    // GPA is weighted average of grade points obtained in courses passed/completed by student.
+    // 'F' grades do not count for GPA calculation (or denominator is earned credits of passed courses).
+    // If all courses are selected, denominator is earnedCredits.
+    let sgpa = 0.00;
+    if (earnedCredits > 0) {
+      sgpa = totalGradePoints / earnedCredits;
+    }
+
+    const sgpaDisplay = document.getElementById('sgpaDisplay');
+    const sgpaDetail = document.getElementById('sgpaDetail');
+    const sgpaBadge = document.getElementById('sgpaClassBadge');
+
+    if (hasAnySelection) {
+      sgpaDisplay.textContent = sgpa.toFixed(2);
+      sgpaDetail.textContent = `${earnedCredits.toFixed(2)} / 19.50 Credits Earned`;
+      updateBadge(sgpaBadge, sgpa);
+    } else {
+      sgpaDisplay.textContent = '0.00';
+      sgpaDetail.textContent = '0.00 / 19.50 Credits Earned';
+      sgpaBadge.style.display = 'none';
+    }
+
+    // Cumulative CGPA calculation
+    const prevCreditsInput = parseFloat(document.getElementById('prevCredits').value) || 0;
+    const prevCgpaInput = parseFloat(document.getElementById('prevCgpa').value) || 0;
+
+    const cgpaDisplay = document.getElementById('cgpaDisplay');
+    const cgpaDetail = document.getElementById('cgpaDetail');
+    const cgpaBadge = document.getElementById('cgpaClassBadge');
+
+    if (prevCreditsInput > 0 && prevCgpaInput > 0) {
+      const prevTotalPoints = prevCreditsInput * prevCgpaInput;
+      const combinedCredits = prevCreditsInput + earnedCredits;
+      const combinedPoints = prevTotalPoints + totalGradePoints;
+      const combinedCgpa = combinedCredits > 0 ? (combinedPoints / combinedCredits) : 0;
+
+      cgpaDisplay.textContent = combinedCgpa.toFixed(2);
+      cgpaDetail.textContent = `Cumulative Credits: ${combinedCredits.toFixed(2)}`;
+      updateBadge(cgpaBadge, combinedCgpa);
+    } else {
+      // If no previous stats provided, CGPA = SGPA of this semester
+      cgpaDisplay.textContent = hasAnySelection ? sgpa.toFixed(2) : '0.00';
+      cgpaDetail.textContent = hasAnySelection ? `Cumulative Credits: ${earnedCredits.toFixed(2)}` : 'Enter previous credits for CGPA';
+      if (hasAnySelection) {
+        updateBadge(cgpaBadge, sgpa);
+      } else {
+        cgpaBadge.style.display = 'none';
+      }
+    }
+  }
+
+  function updateBadge(badgeEl, value) {
+    badgeEl.style.display = 'inline-block';
+    if (value >= 3.75) {
+      badgeEl.className = 'status-badge badge-honors';
+      badgeEl.textContent = 'First Class with Honors (≥3.75)';
+    } else if (value >= 3.00) {
+      badgeEl.className = 'status-badge badge-first';
+      badgeEl.textContent = 'First Class (3.00 - 3.74)';
+    } else if (value >= 2.20) {
+      badgeEl.className = 'status-badge badge-second';
+      badgeEl.textContent = 'Second Class (2.20 - 2.99)';
+    } else if (value > 0) {
+      badgeEl.className = 'status-badge badge-danger';
+      badgeEl.textContent = 'Below Degree Req (<2.20)';
+    } else {
+      badgeEl.style.display = 'none';
+    }
+  }
+
+  function setAllGrades(grade) {
+    courses.forEach((_, idx) => {
+      const select = document.getElementById(`grade_${idx}`);
+      select.value = grade;
+    });
+    calculate();
+  }
+
+  function resetGrades() {
+    courses.forEach((_, idx) => {
+      const select = document.getElementById(`grade_${idx}`);
+      select.value = '';
+    });
+    document.getElementById('prevCredits').value = '';
+    document.getElementById('prevCgpa').value = '';
+    calculate();
+  }
+
+  // Listen to input changes in previous standings
+  document.getElementById('prevCredits').addEventListener('input', calculate);
+  document.getElementById('prevCgpa').addEventListener('input', calculate);
+
+  // Initial render
+  renderTable();
+</script>
+
+</body>
+</html>
